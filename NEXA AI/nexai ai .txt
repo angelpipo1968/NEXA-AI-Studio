@@ -1,0 +1,47 @@
+
+---
+
+## 📦 2. Script de Empaquetado Automático (`scripts/build-release.ps1`)
+
+```powershell
+# scripts/build-release.ps1
+param(
+    [string]$Version = "1.0.0"
+)
+
+$ErrorActionPreference = "Stop"
+$ReleaseDir = "release/nexa-ai-$Version"
+$OutputDir = "output"
+
+Write-Host "🌌 Empaquetando NEXA AI v$Version..." -ForegroundColor Cyan
+
+# 1. Crear estructura
+New-Item -ItemType Directory -Path $ReleaseDir -Force | Out-Null
+New-Item -ItemType Directory -Path "$ReleaseDir/package" -Force | Out-Null
+New-Item -ItemType Directory -Path "$ReleaseDir/installers" -Force | Out-Null
+New-Item -ItemType Directory -Path "$ReleaseDir/docs" -Force | Out-Null
+
+# 2. Copiar código esencial
+Write-Host "📦 Copiando archivos..." -ForegroundColor Yellow
+Copy-Item -Path "app", "lib", "public", "scripts", "package.json", ".env.example" -Destination "$ReleaseDir/package" -Recurse -Force
+Copy-Item -Path "README.md", "LICENSE", "ROADMAP.md" -Destination "$ReleaseDir/package" -Force
+
+# 3. Generar instalador para Windows
+Write-Host "⚙️  Generando instalador..." -ForegroundColor Yellow
+if (Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.exe") {
+    & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "installer.iss"
+    if (Test-Path "$OutputDir\NEXA_AI_Installer_Definitivo.exe") {
+        Copy-Item "$OutputDir\NEXA_AI_Installer_Definitivo.exe" "$ReleaseDir/installers/NEXA_AI_Installer_v$Version.exe"
+    }
+}
+
+# 4. Crear ZIP
+Write-Host "📦 Creando paquete ZIP..." -ForegroundColor Yellow
+Compress-Archive -Path "$ReleaseDir/package" -DestinationPath "release/nexa-ai-v$Version-source.zip" -Force
+
+# 5. Mensaje final
+Write-Host ""
+Write-Host "✅ ¡Paquete listo!" -ForegroundColor Green
+Write-Host "   - Carpeta: $ReleaseDir"
+Write-Host "   - ZIP: release/nexa-ai-v$Version-source.zip"
+Write-Host "   - Instalador: $ReleaseDir/installers/NEXA_AI_Installer_v$Version.exe"

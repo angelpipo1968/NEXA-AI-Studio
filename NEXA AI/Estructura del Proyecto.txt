@@ -1,0 +1,7 @@
+nexa-ai/
+├── app/               # Next.js App Router
+├── lib/               # Hooks y lógica
+├── scripts/           # Scripts de instalación y utilidades
+├── public/            # Assets estáticos (iconos, logo)
+├── package.json
+└── installer.iss      # Inno Setup para Windows
